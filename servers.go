@@ -19,7 +19,7 @@ func startServer(port string) {
 		fmt.Fprintf(w, "Server %s is healthy!\n", port)
 	})
 
-	log.Printf("Server started on :%s\n", port)
+	// log.Printf("Server started on :%s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
