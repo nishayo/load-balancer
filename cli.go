@@ -4,20 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
-// Config struct for TOML
-type Config struct {
-	Algorithm     string   `toml:"algorithm"`
-	StickySession bool     `toml:"sticky_sessions"`
-	Servers       []string `toml:"servers"`
-}
-
-func main() {
+func SetupConfig() {
 	reader := os.Stdin
 	fmt.Println("\n\033[1m⚙️  Load Balancer Configuration\033[0m\n") // Bold title
 
@@ -57,10 +49,7 @@ func main() {
 	// Start default servers if user didn't provide custom ones
 	if serversInput == "" {
 		fmt.Println("Using default servers.")
-		cmd := exec.Command("go", "run", "servers.go")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Start()
+		go MyServers()
 	}
 
 	// Sticky sessions

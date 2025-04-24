@@ -23,7 +23,7 @@ func startServer(port string) {
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-func main() {
+func MyServers() {
 	ports := []string{"5001", "5002", "5003"}
 	var wg sync.WaitGroup
 

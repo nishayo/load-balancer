@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"load_balancer/algorithms"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -19,24 +18,15 @@ type Config struct {
 
 // Global variables
 var servers []string // Backend servers from config
-var counter uint32   // Round-robin counter
+var config *Config   // Make config globally accessible
 
 func main() {
-	// Run cli.go before starting to get configs
-	fmt.Println("Running configuration setup...\n")
-	cmd := exec.Command("go", "run", "cli.go")
-
-	// Show program output in the console
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin // Ensure input works in CLI
-
-	if err := cmd.Run(); err != nil { // Use Run() to wait for the command to finish
-		log.Fatal("Error running cli.go:", err)
-	}
+	// Run the CLI setup to generate config.toml
+	SetupConfig()
 
 	// Load configuration from TOML
-	config, err := loadConfig("config.toml")
+	var err error
+	config, err = loadConfig("config.toml")
 	if err != nil {
 		log.Fatal("Failed to load config:", err)
 	}
@@ -49,8 +39,11 @@ func main() {
 		log.Fatal("No backend servers defined. Check config.toml.")
 	}
 
+	// Initialize the algorithm with servers from config
+	algorithms.Initialize(servers)
+
 	// Start the load balancer
-	http.HandleFunc("/", ProxyHandler) // Use ProxyHandler from round_robin.go
+	http.HandleFunc("/", ProxyHandler) // Use ProxyHandler from proxy_handler.go
 	log.Println("Load balancer started on :8080 with algorithm:", config.Algorithm, "Sticky Sessions:", config.StickySession)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
